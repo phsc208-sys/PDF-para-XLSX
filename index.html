@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extrator PDF Modular</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Extrator PDF Master (Modular)</h2>
+
+        <div class="controls">
+            <div class="group">
+                <button class="btn-blue" onclick="document.getElementById('pdfInput').click()">1. Arquivo</button>
+                <input type="file" id="pdfInput" accept=".pdf" style="display: none" onchange="carregarPDF(this)">
+            </div>
+
+            <div class="group">
+                <button class="btn-nav" onclick="mudarPag(-1)">◀</button>
+
+                <input type="number" id="pagInput" class="nav-input" value="1" min="1" onchange="irParaPagina()">
+
+                <span class="pag-total">de <span id="totalPags">--</span></span>
+
+                <button class="btn-nav" onclick="mudarPag(1)">▶</button>
+            </div>
+
+            <div class="group">
+                <button id="btnTop" class="btn-tool" onclick="ativarModo('top')">Início</button>
+                <button id="btnBottom" class="btn-tool" onclick="ativarModo('bottom')">Fim</button>
+            </div>
+
+            <div class="group">
+                <div class="slider-container">
+                    <div class="slider-label"><span>Altura Linha</span> <span id="tolVal">10px</span></div>
+                    <input type="range" id="tolerancia" min="2" max="50" value="10" oninput="recalcularLinhas()">
+                </div>
+                <div class="checkbox-container">
+                    <input type="checkbox" id="checkColar" checked>
+                    <label for="checkColar">Colar Quebras</label>
+                </div>
+            </div>
+
+            <div class="group" style="border:none;">
+                <button class="btn-red" onclick="limparTudo()">Limpar</button>
+                <button class="btn-preview" onclick="gerarPreview()">2. Preview</button>
+                <button class="btn-csv" onclick="baixarCSV()">3. CSV</button>
+            </div>
+        </div>
+
+        <div id="workspace" onclick="cliqueWorkspace(event)">
+            <div style="padding:40px; text-align:center; color:#aaa;" id="msgInicial">
+                O PDF aparecerá aqui...
+            </div>
+        </div>
+
+        <div id="previewDiv" class="preview-area">
+            <h3>Pré-visualização (<span id="totalLinhas">0</span> linhas):</h3>
+            <div class="scroll-table">
+                <table id="tabelaDados">
+                    <thead>
+                        <tr id="tabelaHeader"></tr>
+                    </thead>
+                    <tbody id="tabelaBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/globals.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/processor.js"></script>
+
+</body>
+
+</html>
