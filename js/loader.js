@@ -29,7 +29,6 @@ async function mudarPag(delta) {
     }
 }
 
-// FUNÇÃO RESTAURADA: Ir para página ao digitar
 async function irParaPagina() {
     if (!pdfDoc) return;
     
@@ -56,7 +55,7 @@ async function carregarPagina(num) {
 
     const ws = document.getElementById('workspace');
     
-    // Correção Bootstrap: Remove d-flex para esconder msg
+    // Remove msg inicial se existir
     const msg = document.getElementById('msgInicial');
     if(msg) {
         msg.classList.remove('d-flex');
@@ -68,13 +67,14 @@ async function carregarPagina(num) {
         container = document.createElement('div');
         container.id = 'page-container';
         container.style.position = 'relative';
-        container.style.backgroundColor = 'white';
-        container.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
         ws.appendChild(container);
     }
 
+    // Aplica o tamanho baseado na escala (zoom)
     container.style.width = (viewport.width * escala) + "px";
     container.style.height = (viewport.height * escala) + "px";
+    ws.style.width = (viewport.width * escala) + "px";
+    ws.style.height = (viewport.height * escala) + "px";
 
     itensPaginaAtual = content.items.map(i => ({ 
         str: i.str, 
@@ -84,4 +84,24 @@ async function carregarPagina(num) {
     
     recalcularLinhas();
     desenharLimites();
+}
+
+// NOVA FUNÇÃO: Controle de Zoom
+async function mudarEscala(delta) {
+    if (!pdfDoc) return;
+
+    let novaEscala = escala + delta;
+    
+    // Limites de segurança (entre 50% e 300%)
+    if (novaEscala < 0.5) novaEscala = 0.5;
+    if (novaEscala > 3.0) novaEscala = 3.0;
+    
+    escala = novaEscala;
+    
+    // Atualiza o mostrador na tela
+    const display = document.getElementById('displayZoom');
+    if(display) display.innerText = Math.round(escala * 100) + "%";
+
+    // Recarrega a página com o novo tamanho
+    await carregarPagina(pagAtual);
 }

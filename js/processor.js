@@ -11,13 +11,8 @@ async function extrairDadosGerais() {
     
     const tol = parseInt(document.getElementById('tolerancia').value);
     
-    // Proteção para checkbox
     const elColar = document.getElementById('checkColar');
     const colarSemEspaco = elColar ? elColar.checked : true;
-    
-    // Proteção: Assume FALSE se o checkbox não existir no HTML
-    const elLimpar = document.getElementById('checkLimparVazias');
-    const limparVazias = elLimpar ? elLimpar.checked : false; 
     
     let regioesAtivas = regioes.length > 0 ? regioes : [{inicio: null, fim: null}];
     let dadosFinais = [];
@@ -91,17 +86,6 @@ async function extrairDadosGerais() {
     }
 
     let resultado = unirLinhasQuebradas(dadosFinais, colarSemEspaco);
-
-    if (limparVazias && resultado.length > 0) {
-        let numCols = resultado[0].length;
-        let colVazia = new Array(numCols).fill(true);
-        resultado.forEach(linha => {
-            linha.forEach((celula, idx) => { if (celula && celula.trim() !== "") colVazia[idx] = false; });
-        });
-        let resultadoLimpo = resultado.map(linha => linha.filter((_, idx) => !colVazia[idx]));
-        return { dados: resultadoLimpo, numColunas: resultadoLimpo[0] ? resultadoLimpo[0].length : 0 };
-    }
-
     return { dados: resultado, numColunas: cortes.length+1 };
 }
 
@@ -135,27 +119,48 @@ function unirLinhasQuebradas(linhas, usarCola) {
     return finais;
 }
 
+// FUNÇÕES DE PREVIEW E DOWNLOAD
 async function gerarPreview() {
     document.getElementById('previewDiv').style.display = 'block';
     const res = await extrairDadosGerais();
-    if(!res) return;
+    
+    if(!res || !res.dados || res.dados.length === 0) return;
     
     document.getElementById('totalLinhas').innerText = res.dados.length;
+    
+    const thead = document.getElementById('tabelaHeader');
     const tbody = document.getElementById('tabelaBody');
+    thead.innerHTML = "";
     tbody.innerHTML = "";
     
-    let html = "";
-    res.dados.forEach(linha => {
-        html += "<tr>";
-        linha.forEach(txt => { html += `<td>${txt}</td>`; });
-        html += "</tr>";
+    // Verifica checkbox do cabeçalho
+    const checkHeader = document.getElementById('checkCabecalho');
+    const usarPrimeiraComoCabecalho = checkHeader ? checkHeader.checked : false;
+    
+    let dados = res.dados;
+    let headerHTML = "";
+
+    if (usarPrimeiraComoCabecalho && dados.length > 0) {
+        dados[0].forEach(txt => { headerHTML += `<th scope="col">${txt}</th>`; });
+        dados = dados.slice(1);
+    } else {
+        let numCols = dados.length > 0 ? dados[0].length : 0;
+        for(let i=1; i<=numCols; i++) { headerHTML += `<th scope="col">Coluna ${i}</th>`; }
+    }
+    thead.innerHTML = headerHTML;
+
+    let bodyHTML = "";
+    dados.forEach(linha => {
+        bodyHTML += "<tr>";
+        linha.forEach(txt => { bodyHTML += `<td>${txt}</td>`; });
+        bodyHTML += "</tr>";
     });
-    tbody.innerHTML = html;
+    tbody.innerHTML = bodyHTML;
 }
 
 async function baixarXLSX() {
     if (regioes.length > 0 || document.querySelectorAll('.col-sep').length > 0) {
-        if(confirm("Você tem uma configuração ativa na tela que não foi salva. Deseja incluí-la no Excel?")) {
+        if(confirm("Deseja incluir a configuração atual não salva no Excel?")) {
             await window.salvarPlanilhaAtual(); 
         }
     }
@@ -166,14 +171,22 @@ async function baixarXLSX() {
     }
 
     var wb = XLSX.utils.book_new();
+    
+    const checkHeader = document.getElementById('checkCabecalho');
+    const usarPrimeiraComoCabecalho = checkHeader ? checkHeader.checked : false;
 
     planilhasSalvas.forEach(planilha => {
-        let headers = [];
-        for(let i=1; i <= planilha.colunas; i++) headers.push(`Coluna ${i}`);
-        let ws_data = [headers, ...planilha.dados];
+        let ws_data = [];
+        if (usarPrimeiraComoCabecalho) {
+            ws_data = planilha.dados;
+        } else {
+            let headers = [];
+            for(let i=1; i <= planilha.colunas; i++) headers.push(`Coluna ${i}`);
+            ws_data = [headers, ...planilha.dados];
+        }
         var ws = XLSX.utils.aoa_to_sheet(ws_data);
         XLSX.utils.book_append_sheet(wb, ws, planilha.nome);
     });
 
-    XLSX.writeFile(wb, "Extrato_MultiplasAbas.xlsx");
+    XLSX.writeFile(wb, "Extrato_PDF.xlsx");
 }

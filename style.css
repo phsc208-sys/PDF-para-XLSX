@@ -1,54 +1,92 @@
-/* Fonte Geral */
-body { font-family: 'Inter', sans-serif; }
+/* Fonte Geral mais moderna */
+body { 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f8f9fa;
+}
+
 .fs-7 { font-size: 0.85rem; }
+
+/* CONTÊINER PRINCIPAL DE ROLAGEM */
+.scroll-container {
+    background-color: #e9ecef;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+    height: calc(100vh - 180px);
+    min-height: 500px;
+    overflow: auto;
+    text-align: center;
+    position: relative;
+}
 
 /* WORKSPACE - O Papel */
 #workspace {
     position: relative;
-    /* Removemos altura fixa para o papel crescer conforme o PDF */
+    display: inline-block;
+    margin: auto;
     min-height: 600px;
     cursor: crosshair;
-    transition: width 0.3s, height 0.3s;
     background-color: #fff;
-    /* Padrão sutil quadriculado para ajudar no alinhamento */
+    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+    
+    /* Padrão quadriculado muito sutil */
     background-image: 
-        linear-gradient(#f0f0f0 1px, transparent 1px), 
-        linear-gradient(90deg, #f0f0f0 1px, transparent 1px);
-    background-size: 25px 25px;
+        linear-gradient(#e0e0e0 1px, transparent 1px), 
+        linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+    background-size: 20px 20px;
+    transition: width 0.3s, height 0.3s;
 }
 
 /* ITENS DO PDF */
 .pdf-item { 
     position: absolute; 
     white-space: nowrap; 
-    font-size: 10px; 
-    font-family: 'Courier New', monospace; /* Monospace ajuda a alinhar tabelas */
-    color: #212529; 
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace; 
+    font-weight: 600; 
+    color: #212529; /* Texto Escuro Forte */
     pointer-events: none; 
     z-index: 10;
+    line-height: 1;
 }
 
-/* LINHAS ZEBRADAS (Geradas pelo JS) */
+/* LINHAS (VISUAL CINZA E BRANCO) */
 .pdf-row { 
     position: absolute; 
     width: 100%; 
-    border-bottom: 1px dashed rgba(0,0,0,0.05); 
+    /* Borda cinza suave para separar as linhas */
+    border-bottom: 1px solid #dcdcdc; 
     pointer-events: none; 
     z-index: 1;
+    transition: background-color 0.1s;
 }
-.pdf-row:nth-child(even) { background-color: rgba(13, 110, 253, 0.04); } /* Azul muito suave */
-.pdf-row:nth-child(odd) { background-color: transparent; }
 
-/* COLUNAS (Interativo) */
+/* Linhas Pares: Cinza Claro (estilo Excel/Tabela) */
+.pdf-row:nth-child(even) { 
+    background-color: #f2f2f2; 
+}
+
+/* Linhas Ímpares: Branco (Transparente sobre o fundo branco) */
+.pdf-row:nth-child(odd) { 
+    background-color: transparent; 
+}
+
+/* Ao passar o mouse: Amarelo suave para destacar onde você está lendo */
+.pdf-row:hover { 
+    background-color: rgba(255, 193, 7, 0.25) !important; 
+    border-bottom: 1px solid #c69500;
+}
+
+/* COLUNAS (Separadores Azuis) */
 .col-sep { 
     position: absolute; top: 0; bottom: 0; width: 2px; 
-    background-color: #0d6efd; /* Bootstrap Primary Blue */
+    background-color: #0d6efd; 
     z-index: 50; cursor: col-resize; pointer-events: auto; 
-    box-shadow: 1px 0 4px rgba(0,0,0,0.2);
+    box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+    transition: width 0.1s;
 }
 .col-sep:hover { 
-    width: 4px; 
-    box-shadow: 0 0 8px rgba(13, 110, 253, 0.6); 
+    width: 6px; 
+    background-color: #0a58ca;
 }
 
 /* LIMITES INÍCIO / FIM */
@@ -56,27 +94,19 @@ body { font-family: 'Inter', sans-serif; }
     position: absolute; left: 0; right: 0; height: 3px; 
     z-index: 60; pointer-events: auto; cursor: row-resize; 
 }
+.limit-top { background-color: #198754; border-bottom: 2px solid #0f5132; }
+.limit-bottom { background-color: #dc3545; border-top: 2px solid #842029; }
 
-.limit-top { 
-    background-color: #198754; /* Green */
-    border-bottom: 1px solid #0f5132;
-}
-.limit-bottom { 
-    background-color: #dc3545; /* Red */
-    border-top: 1px solid #842029;
-}
-
-/* Etiquetas dos Limites */
 .limit-tag { 
-    position: absolute; right: 0; top: -22px; 
-    color: white; font-size: 10px; padding: 3px 8px; 
-    border-radius: 4px 4px 0 0; font-weight: bold; 
-    text-transform: uppercase; letter-spacing: 0.5px;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+    position: absolute; right: 0; top: -24px; 
+    color: white; font-size: 11px; padding: 4px 8px; 
+    border-radius: 4px 4px 0 0; font-weight: 700; 
+    text-transform: uppercase; 
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.15);
 }
 
-/* Ajustes de Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+::-webkit-scrollbar-thumb { background: #adb5bd; border-radius: 5px; border: 2px solid #f1f1f1; }
+::-webkit-scrollbar-thumb:hover { background: #6c757d; }

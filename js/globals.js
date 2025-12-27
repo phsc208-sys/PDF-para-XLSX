@@ -13,8 +13,10 @@ var itensPaginaAtual = [];
 var regioes = []; 
 
 // LISTA DE PLANILHAS SALVAS (Para o Excel final)
-// Cada item será: { nome: "Planilha 1", dados: [matriz] }
 var planilhasSalvas = [];
 
 // Ferramenta Ativa
 var modoFerramenta = null;
+
+// NOVA VARIÁVEL: Armazena faixas de Y que o usuário excluiu
+var linhasIgnoradas = [];
